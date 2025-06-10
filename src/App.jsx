@@ -8,13 +8,29 @@ const API_BASE = import.meta.env.VITE_BASE_URL;
 const API_PATH = import.meta.env.VITE_API_PATH;
 
 function App() {
+
+  const productModalRef = useRef(null);
+
+  // 產品 API 相關
+  const [products, setProduct] = useState([]);
+  const getProductData = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE}/api/${API_PATH}/admin/products`
+      );
+      // console.log(response.data.products);
+      setProduct(response.data.products);
+    } catch (error) {
+      console.error(error.response.data.message);
+    }
+  };
+
+  // 使用者登錄相關
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
-
   const [isAuth, setisAuth] = useState(false);
-  const productModalRef = useRef(null);
 
   useEffect(() => {
     const token = document.cookie.replace(
@@ -31,6 +47,7 @@ function App() {
   const checkAdmin = async () => {
     try {
       await axios.post(`${API_BASE}/api/user/check`);
+      getProductData();
       setisAuth(true);
     } catch (err) {
       console.log(err.response.data.message);
@@ -52,12 +69,14 @@ function App() {
       const { token, expired } = response.data;
       document.cookie = `hexToken=${token};expires=${new Date(expired)};`;
       axios.defaults.headers.common.Authorization = token;
+      getProductData();
       setisAuth(true);
     } catch (error) {
       alert("登入失敗: " + error.response.data.message);
     }
   };
 
+  // 畫面渲染
   return (
     <>
       {isAuth ? (
@@ -78,32 +97,43 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td className="text-end"></td>
-                  <td className="text-end"></td>
-                  <td>
-                    <span className="text-success">啟用</span>
-                    <span>未啟用</span>
-                  </td>
-                  <td>
-                    <div className="btn-group">
-                      <button
-                        type="button"
-                        className="btn btn-outline-primary btn-sm"
-                      >
-                        編輯
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline-danger btn-sm"
-                      >
-                        刪除
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                {products && products.length > 0 ? (
+                  products.map((product) => (
+                    <tr key={product.id}>
+                      <td>{product.category}</td>
+                      <td>{product.title}</td>
+                      <td className="text-end">{product.origin_price}</td>
+                      <td className="text-end">{product.price}</td>
+                      <td>
+                        {product.is_enabled ? (
+                          <span className="text-success">啟用</span>
+                        ) : (
+                          <span>未啟用</span>
+                        )}
+                      </td>
+                      <td>
+                        <div className="btn-group">
+                          <button
+                            type="button"
+                            className="btn btn-outline-primary btn-sm"
+                          >
+                            編輯
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger btn-sm"
+                          >
+                            刪除
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5">尚無產品資料</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
