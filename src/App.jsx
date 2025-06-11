@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import * as bootstrap from "bootstrap";
+// import * as bootstrap from "bootstrap";
+// 只解構出需要用的到功能: Modal
+import { Modal } from "bootstrap";
 
 import "./assets/style.css";
 
@@ -8,8 +10,30 @@ const API_BASE = import.meta.env.VITE_BASE_URL;
 const API_PATH = import.meta.env.VITE_API_PATH;
 
 function App() {
-
+  // Modal 相關
   const productModalRef = useRef(null);
+
+  useEffect(() => {
+    // 初始化 Modal
+    // 助教寫法，跟老師在課堂上 modal 使用到兩個 ref 不太一樣 ↓
+    // myModal.current = new Modal(modalRef.current);
+    new Modal(productModalRef.current, {
+      backdrop: false, // 點選 modal 外面時不會關閉
+      keyboard: false,
+    });
+  }, []);
+
+  const openProductModal = () => {
+    // 助教寫法: 建立 Modal 實例
+    const modalInstance = Modal.getInstance(productModalRef.current);
+    modalInstance.show();
+  };
+
+  const closeProductModal = () => {
+    // 助教寫法: 建立 Modal 實例
+    const modalInstance = Modal.getInstance(productModalRef.current);
+    modalInstance.hide();
+  };
 
   // 產品 API 相關
   const [products, setProduct] = useState([]);
@@ -33,14 +57,18 @@ function App() {
   const [isAuth, setisAuth] = useState(false);
 
   useEffect(() => {
+    // 從 cookie 取得 token
     const token = document.cookie.replace(
       /(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/,
       "$1"
     );
+    // Global axios defaults
     axios.defaults.headers.common.Authorization = token;
-    productModalRef.current = new bootstrap.Modal("#productModal", {
-      keyboard: false,
-    });
+
+    // 初始化 Modal
+    // productModalRef.current = new bootstrap.Modal("#productModal", {keyboard: false,});
+
+    // 驗證登錄
     checkAdmin();
   }, []);
 
@@ -63,13 +91,17 @@ function App() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 清除 submit 預設行為
     try {
       const response = await axios.post(`${API_BASE}/admin/signin`, formData);
       const { token, expired } = response.data;
+      // 將 Token 儲存至 cookie
       document.cookie = `hexToken=${token};expires=${new Date(expired)};`;
+      // Global axios defaults
       axios.defaults.headers.common.Authorization = token;
+      // 取得產品列表
       getProductData();
+      // 通過登入驗證
       setisAuth(true);
     } catch (error) {
       alert("登入失敗: " + error.response.data.message);
@@ -83,7 +115,9 @@ function App() {
         <div>
           <div className="container">
             <div className="text-end mt-4">
-              <button className="btn btn-primary">建立新的產品</button>
+              <button className="btn btn-primary" onClick={openProductModal}>
+                建立新的產品
+              </button>
             </div>
             <table className="table mt-4">
               <thead>
@@ -116,6 +150,7 @@ function App() {
                           <button
                             type="button"
                             className="btn btn-outline-primary btn-sm"
+                            onClick={openProductModal}
                           >
                             編輯
                           </button>
@@ -184,14 +219,16 @@ function App() {
       <div
         id="productModal"
         className="modal fade"
+        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
         tabIndex="-1"
         aria-labelledby="productModalLabel"
         aria-hidden="true"
+        ref={productModalRef}
       >
-        <div className="modal-dialog modal-xl">
-          <div className="modal-content border-0">
-            <div className="modal-header bg-dark text-white">
-              <h5 id="productModalLabel" className="modal-title">
+        <div className="modal-dialog modal-xl modal-dialog-centered">
+          <div className="modal-content border-0 shadow">
+            <div className="modal-header border-bottom">
+              <h5 id="productModalLabel" className="modal-title fs-4">
                 <span>新增產品</span>
               </h5>
               <button
@@ -199,18 +236,21 @@ function App() {
                 className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
+                onClick={closeProductModal}
               ></button>
             </div>
-            <div className="modal-body">
-              <div className="row">
+            <div className="modal-body p-4">
+              <div className="row g-4">
                 <div className="col-sm-4">
                   <div className="mb-2">
                     <div className="mb-3">
-                      <label htmlFor="imageUrl" className="form-label">
-                        輸入圖片網址
+                      <label htmlFor="primary-image" className="form-label">
+                        主圖
                       </label>
                       <input
+                        name="imageUrl"
                         type="text"
+                        id="primary-image"
                         className="form-control"
                         placeholder="請輸入圖片連結"
                       />
@@ -334,6 +374,7 @@ function App() {
                 type="button"
                 className="btn btn-outline-secondary"
                 data-bs-dismiss="modal"
+                onClick={closeProductModal}
               >
                 取消
               </button>
