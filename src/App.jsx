@@ -12,6 +12,7 @@ const API_PATH = import.meta.env.VITE_API_PATH;
 function App() {
   // Modal 相關
   const productModalRef = useRef(null);
+  const delProductModalRef = useRef(null);
   const [modalMode, setModalMode] = useState(null);
   const defaultModalState = {
     imageUrl: "",
@@ -28,10 +29,16 @@ function App() {
   const [tempProduct, setTempProduct] = useState(defaultModalState);
 
   useEffect(() => {
-    // 初始化 Modal
+    // 初始化 "產品 Modal"
     // 助教寫法，跟老師在課堂上 modal 使用到兩個 ref 不太一樣 ↓
     // myModal.current = new Modal(modalRef.current);
     new Modal(productModalRef.current, {
+      backdrop: false, // 點選 modal 外面時不會關閉
+      keyboard: false,
+    });
+
+    // 初始化 "刪除 Modal"
+    new Modal(delProductModalRef.current, {
       backdrop: false, // 點選 modal 外面時不會關閉
       keyboard: false,
     });
@@ -59,6 +66,19 @@ function App() {
   const closeProductModal = () => {
     // 助教寫法: 建立 Modal 實例
     const modalInstance = Modal.getInstance(productModalRef.current);
+    modalInstance.hide();
+  };
+
+  const openDelProductModal = (product) => {
+    // 打開刪除產品 Modal 時將點選的產品設為 tempProduct
+    setTempProduct(product);
+
+    const modalInstance = Modal.getInstance(delProductModalRef.current);
+    modalInstance.show();
+  };
+
+  const closeDelProductModal = () => {
+    const modalInstance = Modal.getInstance(delProductModalRef.current);
     modalInstance.hide();
   };
 
@@ -280,6 +300,7 @@ function App() {
                           <button
                             type="button"
                             className="btn btn-outline-danger btn-sm"
+                            onClick={() => {openDelProductModal(product)}}
                           >
                             刪除
                           </button>
@@ -585,6 +606,46 @@ function App() {
                 onClick={handleUpdateProduct}
               >
                 確認
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 刪除產品 Modal */}
+      <div
+        ref={delProductModalRef}
+        className="modal fade"
+        id="delProductModal"
+        tabIndex="-1"
+        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5">刪除產品</h1>
+              <button
+                onClick={closeDelProductModal}
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              你是否要刪除
+              <span className="text-danger fw-bold">{tempProduct.title}</span>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={closeDelProductModal}
+              >
+                取消
+              </button>
+              <button type="button" className="btn btn-danger">
+                刪除
               </button>
             </div>
           </div>
