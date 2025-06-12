@@ -118,6 +118,35 @@ function App() {
     }
   };
 
+  const createProduct = async() => {
+    try {
+      await axios.post(`${API_BASE}/api/${API_PATH}/admin/product`, {
+        data: {
+          ...tempProduct,
+          // API 要帶的資料中 origin_price 和 price 要是 number
+          origin_price: Number(tempProduct.origin_price),
+          price: Number(tempProduct.price),
+          // is_enabled 要存成 0 和 1, 因 tempProduct.is_enabled 存的是 checked 狀態 true or false
+          is_enabled: tempProduct.is_enabled ? 1 : 0,
+        },
+      });
+    } catch (error) {
+      alert('新增產品失敗');
+    }
+  }
+
+  const handleUpdateProduct = async () => {
+    try {
+      // 新增完產品才做產品列表渲染，所以要用 async/await 同步執行
+      await createProduct();
+      getProductData();
+      // 關閉 Modal 不一定要取得產品列表完才能執行，所以不需要再 await
+      closeProductModal();
+    } catch (error) {
+      alert('更新產品失敗');
+    }
+  }
+
   // 使用者登錄相關
   const [formData, setFormData] = useState({
     username: "",
@@ -532,7 +561,11 @@ function App() {
               >
                 取消
               </button>
-              <button type="button" className="btn btn-primary">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleUpdateProduct}
+              >
                 確認
               </button>
             </div>
