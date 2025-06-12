@@ -12,6 +12,18 @@ const API_PATH = import.meta.env.VITE_API_PATH;
 function App() {
   // Modal 相關
   const productModalRef = useRef(null);
+  const [tempProduct, setTempProduct] = useState({
+    imageUrl: "",
+    title: "",
+    category: "",
+    unit: "",
+    origin_price: "",
+    price: "",
+    description: "",
+    content: "",
+    is_enabled: 0,
+    imagesUrl: [""],
+  });
 
   useEffect(() => {
     // 初始化 Modal
@@ -34,6 +46,15 @@ function App() {
     const modalInstance = Modal.getInstance(productModalRef.current);
     modalInstance.hide();
   };
+
+  const handleModalInputChange = (e) => {
+    const { value, name, checked, type } = e.target;
+    // console.log(value, name);
+    setTempProduct({
+      ...tempProduct,
+      [name]: type === "checkbox" ? checked : value
+    })
+  }
 
   // 產品 API 相關
   const [products, setProduct] = useState([]);
@@ -248,14 +269,20 @@ function App() {
                         主圖
                       </label>
                       <input
+                        value={tempProduct.imageUrl}
                         name="imageUrl"
                         type="text"
                         id="primary-image"
                         className="form-control"
                         placeholder="請輸入圖片連結"
+                        onChange={handleModalInputChange}
                       />
                     </div>
-                    <img className="img-fluid" src="" alt="" />
+                    <img
+                      className="img-fluid"
+                      src={tempProduct.imageUrl}
+                      alt={tempProduct.title}
+                    />
                   </div>
                   <div>
                     <button className="btn btn-outline-primary btn-sm d-block w-100">
@@ -274,10 +301,13 @@ function App() {
                       標題
                     </label>
                     <input
+                      value={tempProduct.title}
                       id="title"
                       type="text"
                       className="form-control"
                       placeholder="請輸入標題"
+                      name="title"
+                      onChange={handleModalInputChange}
                     />
                   </div>
 
@@ -287,10 +317,13 @@ function App() {
                         分類
                       </label>
                       <input
+                        value={tempProduct.category}
+                        name="category"
                         id="category"
                         type="text"
                         className="form-control"
                         placeholder="請輸入分類"
+                        onChange={handleModalInputChange}
                       />
                     </div>
                     <div className="mb-3 col-md-6">
@@ -298,10 +331,13 @@ function App() {
                         單位
                       </label>
                       <input
+                        value={tempProduct.unit}
+                        name="unit"
                         id="unit"
                         type="text"
                         className="form-control"
                         placeholder="請輸入單位"
+                        onChange={handleModalInputChange}
                       />
                     </div>
                   </div>
@@ -312,11 +348,14 @@ function App() {
                         原價
                       </label>
                       <input
+                        value={tempProduct.origin_price}
+                        name="origin_price"
                         id="origin_price"
                         type="number"
                         min="0"
                         className="form-control"
                         placeholder="請輸入原價"
+                        onChange={handleModalInputChange}
                       />
                     </div>
                     <div className="mb-3 col-md-6">
@@ -324,11 +363,14 @@ function App() {
                         售價
                       </label>
                       <input
+                        value={tempProduct.price}
+                        name="price"
                         id="price"
                         type="number"
                         min="0"
                         className="form-control"
                         placeholder="請輸入售價"
+                        onChange={handleModalInputChange}
                       />
                     </div>
                   </div>
@@ -339,9 +381,12 @@ function App() {
                       產品描述
                     </label>
                     <textarea
+                      value={tempProduct.description}
+                      name="description"
                       id="description"
                       className="form-control"
                       placeholder="請輸入產品描述"
+                      onChange={handleModalInputChange}
                     ></textarea>
                   </div>
                   <div className="mb-3">
@@ -349,17 +394,24 @@ function App() {
                       說明內容
                     </label>
                     <textarea
+                      value={tempProduct.content}
+                      name="content"
                       id="content"
                       className="form-control"
                       placeholder="請輸入說明內容"
+                      onChange={handleModalInputChange}
                     ></textarea>
                   </div>
                   <div className="mb-3">
                     <div className="form-check">
                       <input
+                        // 綁定 checkbox 的勾選狀態時，應透過 checked 屬性，而非 value
+                        checked={tempProduct.is_enabled}
+                        name="is_enabled"
                         id="is_enabled"
                         className="form-check-input"
                         type="checkbox"
+                        onChange={handleModalInputChange}
                       />
                       <label className="form-check-label" htmlFor="is_enabled">
                         是否啟用
