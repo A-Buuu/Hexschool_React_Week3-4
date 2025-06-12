@@ -172,6 +172,14 @@ function App() {
     }
   };
 
+  const deleteProduct = async () => {
+    try {
+      await axios.delete(`${API_BASE}/api/${API_PATH}/admin/product/${tempProduct.id}`);
+    } catch (error) {
+      alert("刪除產品失敗");
+    }
+  };
+
   const handleUpdateProduct = async () => {
     const apiCall = modalMode === "create" ? createProduct : editProduct;
     try {
@@ -184,6 +192,16 @@ function App() {
       alert('更新產品失敗');
     }
   }
+
+  const handleDeleteProduct = async () => {
+    try {
+      await deleteProduct();
+      getProductData();
+      closeDelProductModal();
+    } catch (error) {
+      alert("刪除產品失敗");
+    }
+  };
 
   // 使用者登錄相關
   const [formData, setFormData] = useState({
@@ -300,7 +318,9 @@ function App() {
                           <button
                             type="button"
                             className="btn btn-outline-danger btn-sm"
-                            onClick={() => {openDelProductModal(product)}}
+                            onClick={() => {
+                              openDelProductModal(product);
+                            }}
                           >
                             刪除
                           </button>
@@ -644,7 +664,11 @@ function App() {
               >
                 取消
               </button>
-              <button type="button" className="btn btn-danger">
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleDeleteProduct}
+              >
                 刪除
               </button>
             </div>
