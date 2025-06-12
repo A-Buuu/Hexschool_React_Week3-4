@@ -268,7 +268,8 @@ function App() {
       {isAuth ? (
         <div>
           <div className="container">
-            <div className="text-end mt-4">
+            <div className="d-flex justify-content-between mt-4">
+              <h2 className="fw-bolder">產品列表</h2>
               <button
                 className="btn btn-primary"
                 onClick={() => {
@@ -281,22 +282,24 @@ function App() {
             <table className="table mt-4">
               <thead>
                 <tr>
+                  <th width="200" className="text-start">
+                    產品名稱
+                  </th>
                   <th width="120">分類</th>
-                  <th>產品名稱</th>
-                  <th width="120">原價</th>
-                  <th width="120">售價</th>
+                  <th width="100">原價</th>
+                  <th width="100">售價</th>
                   <th width="100">是否啟用</th>
-                  <th width="120">編輯</th>
+                  <th width="120"></th>
                 </tr>
               </thead>
               <tbody>
                 {products && products.length > 0 ? (
                   products.map((product) => (
                     <tr key={product.id}>
+                      <th className="text-start">{product.title}</th>
                       <td>{product.category}</td>
-                      <td>{product.title}</td>
-                      <td className="text-end">{product.origin_price}</td>
-                      <td className="text-end">{product.price}</td>
+                      <td>{product.origin_price}</td>
+                      <td>{product.price}</td>
                       <td>
                         {product.is_enabled ? (
                           <span className="text-success">啟用</span>
@@ -382,7 +385,7 @@ function App() {
       )}
       <div
         id="productModal"
-        className="modal fade"
+        className="modal fade text-start"
         style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
         tabIndex="-1"
         aria-labelledby="productModalLabel"
@@ -652,7 +655,7 @@ function App() {
                 aria-label="Close"
               ></button>
             </div>
-            <div className="modal-body">
+            <div className="modal-body text-start">
               你是否要刪除
               <span className="text-danger fw-bold">{tempProduct.title}</span>
             </div>

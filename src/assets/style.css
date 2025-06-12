@@ -31,3 +31,9 @@ img {
 .images {
   height: 150px;
 }
+
+.modal-title, 
+.form-label,
+.form-check-label {
+  font-weight: bold;
+}
