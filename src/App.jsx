@@ -12,7 +12,8 @@ const API_PATH = import.meta.env.VITE_API_PATH;
 function App() {
   // Modal 相關
   const productModalRef = useRef(null);
-  const [tempProduct, setTempProduct] = useState({
+  const [modalMode, setModalMode] = useState(null);
+  const defaultModalState = {
     imageUrl: "",
     title: "",
     category: "",
@@ -23,7 +24,8 @@ function App() {
     content: "",
     is_enabled: 0,
     imagesUrl: [""],
-  });
+  };
+  const [tempProduct, setTempProduct] = useState(defaultModalState);
 
   useEffect(() => {
     // 初始化 Modal
@@ -35,7 +37,20 @@ function App() {
     });
   }, []);
 
-  const openProductModal = () => {
+  const openProductModal = (mode, product) => {
+    setModalMode(mode);
+
+    switch (mode) {
+      case "create":
+        setTempProduct(defaultModalState);
+        break;
+      case "edit":
+        setTempProduct(product);
+        break;
+      default:
+        break;
+    }
+
     // 助教寫法: 建立 Modal 實例
     const modalInstance = Modal.getInstance(productModalRef.current);
     modalInstance.show();
@@ -136,7 +151,12 @@ function App() {
         <div>
           <div className="container">
             <div className="text-end mt-4">
-              <button className="btn btn-primary" onClick={openProductModal}>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  openProductModal("create");
+                }}
+              >
                 建立新的產品
               </button>
             </div>
@@ -171,7 +191,9 @@ function App() {
                           <button
                             type="button"
                             className="btn btn-outline-primary btn-sm"
-                            onClick={openProductModal}
+                            onClick={() => {
+                              openProductModal("edit", product);
+                            }}
                           >
                             編輯
                           </button>
@@ -250,7 +272,7 @@ function App() {
           <div className="modal-content border-0 shadow">
             <div className="modal-header border-bottom">
               <h5 id="productModalLabel" className="modal-title fs-4">
-                <span>新增產品</span>
+                <span>{modalMode === "create" ? "新增產品" : "編輯產品"}</span>
               </h5>
               <button
                 type="button"
@@ -271,7 +293,7 @@ function App() {
                       <input
                         value={tempProduct.imageUrl}
                         name="imageUrl"
-                        type="text"
+                        type="url"
                         id="primary-image"
                         className="form-control"
                         placeholder="請輸入圖片連結"
@@ -352,7 +374,7 @@ function App() {
                         name="origin_price"
                         id="origin_price"
                         type="number"
-                        min="0"
+                        min="0" // 初步防止使用者選擇到負值
                         className="form-control"
                         placeholder="請輸入原價"
                         onChange={handleModalInputChange}
@@ -367,7 +389,7 @@ function App() {
                         name="price"
                         id="price"
                         type="number"
-                        min="0"
+                        min="0" // 初步防止使用者選擇到負值
                         className="form-control"
                         placeholder="請輸入售價"
                         onChange={handleModalInputChange}
