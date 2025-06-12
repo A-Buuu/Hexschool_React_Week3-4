@@ -135,10 +135,28 @@ function App() {
     }
   }
 
-  const handleUpdateProduct = async () => {
+  const editProduct = async () => {
     try {
-      // 新增完產品才做產品列表渲染，所以要用 async/await 同步執行
-      await createProduct();
+      await axios.put(`${API_BASE}/api/${API_PATH}/admin/product/${tempProduct.id}`, {
+        data: {
+          ...tempProduct,
+          // API 要帶的資料中 origin_price 和 price 要是 number
+          origin_price: Number(tempProduct.origin_price),
+          price: Number(tempProduct.price),
+          // is_enabled 要存成 0 和 1, 因 tempProduct.is_enabled 存的是 checked 狀態 true or false
+          is_enabled: tempProduct.is_enabled ? 1 : 0,
+        },
+      });
+    } catch (error) {
+      alert("編輯產品失敗");
+    }
+  };
+
+  const handleUpdateProduct = async () => {
+    const apiCall = modalMode === "create" ? createProduct : editProduct;
+    try {
+      // 新增或編輯完產品才做產品列表渲染，所以要用 async/await 同步執行
+      await apiCall();
       getProductData();
       // 關閉 Modal 不一定要取得產品列表完才能執行，所以不需要再 await
       closeProductModal();
