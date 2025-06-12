@@ -71,6 +71,18 @@ function App() {
     })
   }
 
+  const handleImageChange = (e, index) => {
+    const { value } = e.target;
+    const newImages = [...tempProduct.imagesUrl];
+
+    newImages[index] = value;
+
+    setTempProduct({
+      ...tempProduct,
+      imagesUrl: newImages,
+    });
+  }
+
   // 產品 API 相關
   const [products, setProduct] = useState([]);
   const getProductData = async () => {
@@ -306,13 +318,39 @@ function App() {
                       alt={tempProduct.title}
                     />
                   </div>
-                  <div>
-                    <button className="btn btn-outline-primary btn-sm d-block w-100">
+                  {/* 副圖 */}
+                  <div className="border border-2 border-dashed rounded-3 p-3 mb-3">
+                    {tempProduct.imagesUrl?.map((image, index) => (
+                      <div key={index} className="mb-2">
+                        <label
+                          htmlFor={`imagesUrl-${index + 1}`}
+                          className="form-label"
+                        >
+                          副圖 {index + 1}
+                        </label>
+                        <input
+                          value={image}
+                          id={`imagesUrl-${index + 1}`}
+                          type="url"
+                          placeholder={`圖片網址 ${index + 1}`}
+                          className="form-control mb-2"
+                          onChange={(e) => {handleImageChange(e, index)}}
+                        />
+                        {image && (
+                          <img
+                            src={image}
+                            alt={`副圖 ${index + 1}`}
+                            className="img-fluid mb-2"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="btn-group w-100">
+                    <button className="btn btn-outline-primary btn-sm w-100">
                       新增圖片
                     </button>
-                  </div>
-                  <div>
-                    <button className="btn btn-outline-danger btn-sm d-block w-100">
+                    <button className="btn btn-outline-danger btn-sm w-100">
                       刪除圖片
                     </button>
                   </div>
