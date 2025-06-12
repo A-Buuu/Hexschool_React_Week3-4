@@ -70,7 +70,7 @@ function App() {
       [name]: type === "checkbox" ? checked : value
     })
   }
-
+  /* 副圖處理 */
   const handleImageChange = (e, index) => {
     const { value } = e.target;
     const newImages = [...tempProduct.imagesUrl];
@@ -82,6 +82,27 @@ function App() {
       imagesUrl: newImages,
     });
   }
+
+  const handleAddImage = () => {
+    // 點擊"新增圖片"時對陣列新增一個空字串
+    const newImages = [...tempProduct.imagesUrl, ''];
+
+    setTempProduct({
+      ...tempProduct,
+      imagesUrl: newImages,
+    });
+  }
+
+  const handleDeleteImage = () => {
+    const newImages = [...tempProduct.imagesUrl];
+    // 點擊"刪除圖片"時移除陣列中最後一個欄位
+    newImages.pop();
+
+    setTempProduct({
+      ...tempProduct,
+      imagesUrl: newImages,
+    });
+  };
 
   // 產品 API 相關
   const [products, setProduct] = useState([]);
@@ -334,7 +355,9 @@ function App() {
                           type="url"
                           placeholder={`圖片網址 ${index + 1}`}
                           className="form-control mb-2"
-                          onChange={(e) => {handleImageChange(e, index)}}
+                          onChange={(e) => {
+                            handleImageChange(e, index);
+                          }}
                         />
                         {image && (
                           <img
@@ -347,12 +370,31 @@ function App() {
                     ))}
                   </div>
                   <div className="btn-group w-100">
-                    <button className="btn btn-outline-primary btn-sm w-100">
-                      新增圖片
-                    </button>
-                    <button className="btn btn-outline-danger btn-sm w-100">
-                      刪除圖片
-                    </button>
+                    {
+                      // 最後一個欄位有值且未達上限(5 張)
+                      tempProduct.imagesUrl.length < 5 &&
+                        tempProduct.imagesUrl[
+                          tempProduct.imagesUrl.length - 1
+                        ] !== "" && (
+                          <button
+                            onClick={handleAddImage}
+                            className="btn btn-outline-primary btn-sm w-100"
+                          >
+                            新增圖片
+                          </button>
+                        )
+                    }
+                    {
+                      // 當多圖陣列有值且非唯一的欄位(至少有一個 input)就顯示
+                      tempProduct.imagesUrl.length > 1 && (
+                        <button
+                          onClick={handleDeleteImage}
+                          className="btn btn-outline-danger btn-sm w-100"
+                        >
+                          刪除圖片
+                        </button>
+                      )
+                    }
                   </div>
                 </div>
                 <div className="col-sm-8">
