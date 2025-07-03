@@ -126,13 +126,14 @@ function App() {
 
   // 產品 API 相關
   const [products, setProduct] = useState([]);
-  const getProductData = async () => {
+  const getProductData = async (page = 1) => {
     try {
       const response = await axios.get(
-        `${API_BASE}/api/${API_PATH}/admin/products`
-      );
-      // console.log(response.data.products);
+        `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`
+      ); // query 寫法: ? + 參數
+      console.log("getProductData", response);
       setProduct(response.data.products);
+      setPageInfo(response.data.pagination);
     } catch (error) {
       console.error(error.response.data.message);
     }
@@ -202,6 +203,14 @@ function App() {
       alert("刪除產品失敗");
     }
   };
+
+  // 頁面處理
+  const [pageInfo, setPageInfo] = useState({});
+  const handlePageChange = (page) => {
+    // e.preventDefault();
+    console.log("頁面: ", page);
+    getProductData(page);
+  }
 
   // 使用者登錄相關
   const [formData, setFormData] = useState({
@@ -338,6 +347,61 @@ function App() {
                 )}
               </tbody>
             </table>
+            <div className="d-flex justify-content-center">
+              <nav>
+                <ul className="pagination">
+                  <li
+                    className={`page-item ${!pageInfo.has_pre && "disabled"}`}
+                  >
+                    <a
+                      className="page-link"
+                      href="#"
+                      onClick={() =>
+                        handlePageChange(pageInfo.current_page - 1)
+                      }
+                    >
+                      上一頁
+                    </a>
+                  </li>
+
+                  {
+                    // 產生相對應長度的陣列
+                    Array.from({ length: pageInfo.total_pages }).map(
+                      (_, index) => (
+                        <li
+                          className={`page-item ${
+                            pageInfo.current_page === index + 1 && "active"
+                          }`}
+                          key={index}
+                        >
+                          <a
+                            className="page-link"
+                            href="#"
+                            onClick={() => handlePageChange(index + 1)}
+                          >
+                            {index + 1}
+                          </a>
+                        </li>
+                      )
+                    )
+                  }
+
+                  <li
+                    className={`page-item ${!pageInfo.has_next && "disabled"}`}
+                  >
+                    <a
+                      className="page-link"
+                      href="#"
+                      onClick={() =>
+                        handlePageChange(pageInfo.current_page + 1)
+                      }
+                    >
+                      下一頁
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
           </div>
         </div>
       ) : (
