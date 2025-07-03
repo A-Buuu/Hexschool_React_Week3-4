@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_BASE_URL;
 
-function LoginPage({ getProductData }) {
+function LoginPage({ setIsAuth }) {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -27,11 +27,37 @@ function LoginPage({ getProductData }) {
       // Global axios defaults
       axios.defaults.headers.common.Authorization = token;
       // 取得產品列表
-      getProductData();
+      // getProductData();
       // 通過登入驗證
-      setisAuth(true);
+      setIsAuth(true);
     } catch (error) {
       alert("登入失敗: " + error.response.data.message);
+    }
+  };
+
+  useEffect(() => {
+    // 從 cookie 取得 token
+    const token = document.cookie.replace(
+      /(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/,
+      "$1"
+    );
+    // Global axios defaults
+    axios.defaults.headers.common.Authorization = token;
+
+    // 初始化 Modal
+    // productModalRef.current = new bootstrap.Modal("#productModal", {keyboard: false,});
+
+    // 驗證登錄
+    checkAdmin();
+  }, []);
+
+  const checkAdmin = async () => {
+    try {
+      await axios.post(`${API_BASE}/api/user/check`);
+      // getProductData();
+      setIsAuth(true);
+    } catch (err) {
+      console.log(err.response.data.message);
     }
   };
 
