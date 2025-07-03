@@ -123,6 +123,29 @@ function App() {
       imagesUrl: newImages,
     });
   };
+  /* 主圖圖片上傳 */
+  const handleFileChange = async (e) => {
+    // console.dir(e.target);
+    const file = e.target.files[0];
+    // 使用 FormData 格式上傳
+    const formData = new FormData();
+    formData.append("file-to-upload", file);
+    // console.log(formData);
+
+    try {
+      const res = await axios.post(`${API_BASE}/api/${API_PATH}/admin/upload`, formData);
+      const uploadImageUrl = res.data.imageUrl;
+      // console.log(uploadImageUrl);
+      setTempProduct({
+        ...tempProduct,
+        imageUrl: uploadImageUrl
+      });
+    } catch (error) {
+      // console.log(error.response.data.message.message);
+      alert("檔案過大，請勿超過 3MB");
+    }
+    e.target.value = "";
+  }
 
   // 產品 API 相關
   const [products, setProduct] = useState([]);
@@ -474,6 +497,19 @@ function App() {
               <div className="row g-4">
                 <div className="col-sm-4">
                   <div className="mb-2">
+                    <div className="mb-3">
+                      <label htmlFor="fileInput" className="form-label">
+                        {" "}
+                        圖片上傳{" "}
+                      </label>
+                      <input
+                        type="file"
+                        accept=".jpg,.jpeg,.png"
+                        className="form-control"
+                        id="fileInput"
+                        onChange={handleFileChange}
+                      />
+                    </div>
                     <div className="mb-3">
                       <label htmlFor="primary-image" className="form-label">
                         主圖
